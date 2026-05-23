@@ -340,6 +340,17 @@ let primed = false;
 function primeAudio() {
   if (primed) return;
   primed = true;
+
+  winSound.volume = 0;
+  winSound.play()
+    .then(() => {
+      winSound.pause();
+      winSound.currentTime = 0;
+      winSound.volume = 0.7;
+    })
+    .catch(() => {
+      winSound.volume = 0.7;
+    });
 }
 
       const front = new Image();
