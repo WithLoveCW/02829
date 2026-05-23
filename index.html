@@ -339,19 +339,23 @@
       let primed = false;
 
       function primeAudio() {
-        if (primed) return;
+  if (primed) return;
 
-        primed = true;
-        winSound.muted = true;
+  primed = true;
 
-        winSound.play()
-          .then(() => {
-            winSound.pause();
-            winSound.currentTime = 0;
-            winSound.muted = false;
-          })
-          .catch(() => {});
-      }
+  const originalVolume = winSound.volume;
+  winSound.volume = 0;
+
+  winSound.play()
+    .then(() => {
+      winSound.pause();
+      winSound.currentTime = 0;
+      winSound.volume = originalVolume;
+    })
+    .catch(() => {
+      winSound.volume = originalVolume;
+    });
+}
 
       const front = new Image();
       front.src = "./images/front.jpeg";
@@ -407,6 +411,7 @@
       };
 
     function start(e) {
+      primeAudio();
   e.preventDefault();
 
         scratching = true;
