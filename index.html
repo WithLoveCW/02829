@@ -335,8 +335,11 @@
 
       winSound.preload = "auto";
       winSound.volume = 0.7;
+let primed = false;
 
-      
+function primeAudio() {
+  if (primed) return;
+  primed = true;
 }
 
       const front = new Image();
