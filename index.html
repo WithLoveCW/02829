@@ -450,21 +450,31 @@
       }
 
       function getPos(e) {
-        const r =
-          canvas.getBoundingClientRect();
 
-        const p =
-          e.touches
-            ? e.touches[0]
-            : e;
+  const rect =
+    canvas.getBoundingClientRect();
 
-        return {
-          x:
-            (p.clientX - r.left) * dpr,
-          y:
-            (p.clientY - r.top) * dpr
-        };
-      }
+  const touch =
+    e.touches
+      ? e.touches[0]
+      : e;
+
+  const scaleX =
+    canvas.width / rect.width;
+
+  const scaleY =
+    canvas.height / rect.height;
+
+  return {
+    x:
+      (touch.clientX - rect.left)
+      * scaleX,
+
+    y:
+      (touch.clientY - rect.top)
+      * scaleY
+  };
+}
 
       function scratch(e) {
         if (!scratching) return;
