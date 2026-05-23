@@ -343,7 +343,22 @@
 
   primed = true;
 
-  winSound.load();
+  const originalVolume =
+    winSound.volume;
+
+  winSound.volume = 0;
+
+  winSound.play()
+    .then(() => {
+      winSound.pause();
+      winSound.currentTime = 0;
+      winSound.volume =
+        originalVolume;
+    })
+    .catch(() => {
+      winSound.volume =
+        originalVolume;
+    });
 }
 
   const originalVolume = winSound.volume;
