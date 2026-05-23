@@ -338,10 +338,13 @@
 
       let primed = false;
 
-      function primeAudio() {
+     function primeAudio() {
   if (primed) return;
 
   primed = true;
+
+  winSound.load();
+}
 
   const originalVolume = winSound.volume;
   winSound.volume = 0;
