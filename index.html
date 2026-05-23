@@ -336,43 +336,7 @@
       winSound.preload = "auto";
       winSound.volume = 0.7;
 
-      let primed = false;
-
-     function primeAudio() {
-  if (primed) return;
-
-  primed = true;
-
-  const originalVolume =
-    winSound.volume;
-
-  winSound.volume = 0;
-
-  winSound.play()
-    .then(() => {
-      winSound.pause();
-      winSound.currentTime = 0;
-      winSound.volume =
-        originalVolume;
-    })
-    .catch(() => {
-      winSound.volume =
-        originalVolume;
-    });
-}
-
-  const originalVolume = winSound.volume;
-  winSound.volume = 0;
-
-  winSound.play()
-    .then(() => {
-      winSound.pause();
-      winSound.currentTime = 0;
-      winSound.volume = originalVolume;
-    })
-    .catch(() => {
-      winSound.volume = originalVolume;
-    });
+      
 }
 
       const front = new Image();
