@@ -271,13 +271,12 @@
         <div id="personalTextBox">
 
           <div id="babyName">
-            Baby Smithson
-          </div>
+  Loading...
+</div>
 
-          <div id="message">
-            Coming This September!
-          </div>
-
+<div id="message">
+  Loading...
+</div>
         </div>
       </div>
 
@@ -652,5 +651,57 @@
 
     });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL =
+    "https://bfzhvulpymbqzwxorzih.supabase.co";
+
+  const SUPABASE_ANON_KEY =
+    "sb_publishable_aLj5jota1g3icfvF7MROIQ_b4-yKlo3";
+
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+  async function loadRevealData() {
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const id =
+      params.get("id");
+
+    if (!id) return;
+
+    const { data, error } =
+      await supabaseClient
+        .from("gender-design1")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (error || !data) {
+      console.error(error);
+      return;
+    }
+
+    document.getElementById(
+      "babyName"
+    ).textContent =
+      data.baby_name;
+
+    document.getElementById(
+      "message"
+    ).textContent =
+      data.message;
+  }
+
+  loadRevealData();
+</script>
 </body>
 </html>
