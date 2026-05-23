@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personalise Your Reveal</title>
+
+  <style>
+    @font-face {
+      font-family: 'Samantha';
+      src: url('./images/Samantha_Calligraphy.ttf') format('truetype');
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #dfd4d2;
+      font-family: Georgia, "Times New Roman", serif;
+      color: #8e515a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 28px 18px;
+    }
+
+    .form-wrapper {
+      width: 100%;
+      max-width: 520px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 88%;
+      max-width: 430px;
+      margin: 0 auto 22px auto;
+      display: block;
+    }
+
+    .form-card {
+      background: rgba(255, 255, 255, 0.55);
+      border: 2px solid rgba(142, 81, 90, 0.25);
+      border-radius: 28px;
+      padding: 34px 26px;
+      box-shadow: 0 12px 34px rgba(142, 81, 90, 0.18);
+      backdrop-filter: blur(4px);
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 34px;
+      font-weight: normal;
+      color: #8e515a;
+    }
+
+    .intro {
+      margin: 0 0 28px 0;
+      font-size: 16px;
+      line-height: 1.45;
+      color: #8e515a;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin: 18px 0 7px 0;
+      font-size: 15px;
+      font-weight: bold;
+      color: #8e515a;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 2px solid rgba(142, 81, 90, 0.28);
+      border-radius: 16px;
+      padding: 15px 16px;
+      font-size: 17px;
+      font-family: Georgia, "Times New Roman", serif;
+      color: #8e515a;
+      background: rgba(255, 255, 255, 0.82);
+      outline: none;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #8e515a;
+      box-shadow: 0 0 0 4px rgba(142, 81, 90, 0.12);
+    }
+
+    .hint {
+      text-align: left;
+      margin-top: 6px;
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 26px;
+      border: none;
+      border-radius: 999px;
+      padding: 16px 22px;
+      background: #8e515a;
+      color: white;
+      font-size: 18px;
+      font-family: Georgia, "Times New Roman", serif;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(142, 81, 90, 0.28);
+    }
+
+    button:hover {
+      opacity: 0.92;
+    }
+
+    #resultBox {
+      display: none;
+      margin-top: 24px;
+      padding: 20px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.7);
+      border: 2px solid rgba(142, 81, 90, 0.22);
+      word-break: break-word;
+    }
+
+    #resultBox h2 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+      font-weight: normal;
+    }
+
+    #revealLink {
+      display: block;
+      margin-top: 12px;
+      color: #8e515a;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+
+    .copy-button {
+      margin-top: 14px;
+      padding: 12px 18px;
+      font-size: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .form-card {
+        padding: 28px 20px;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      .logo {
+        width: 94%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="form-wrapper">
+
+    <img
+      class="logo"
+      src="./images/WITHLOVECW.png"
+      alt="With Love CW"
+    />
+
+    <div class="form-card">
+      <h1>Personalise Your Reveal</h1>
+
+      <p class="intro">
+        Enter the details you would like to appear on your baby reveal.
+      </p>
+
+      <form id="revealForm">
+
+        <label for="babyName">Baby name</label>
+        <input
+          id="babyName"
+          name="babyName"
+          type="text"
+          placeholder="Baby Smithson"
+          required
+        />
+
+        <div class="hint">
+          Example: Baby Smithson
+        </div>
+
+        <label for="message">Reveal message</label>
+        <textarea
+          id="message"
+          name="message"
+          placeholder="Coming This September!"
+          required
+        ></textarea>
+
+        <div class="hint">
+          Example: Coming This September!
+        </div>
+
+        <button type="submit">
+          Create My Reveal
+        </button>
+
+      </form>
+
+      <div id="resultBox">
+        <h2>Your reveal is ready!</h2>
+        <p>
+  <strong>Share this link with friends & family:</strong>
+</p>
+
+        <a id="revealLink" href="#" target="_blank"></a>
+
+        <button class="copy-button" id="copyButton" type="button">
+          Copy Link
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL = "https://bfzhvulpymbqzwxorzih.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_aLj5jota1g3icfvF7MROIQ_b4-yKlo3";
+
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+    const form = document.getElementById("revealForm");
+    const resultBox = document.getElementById("resultBox");
+    const revealLink = document.getElementById("revealLink");
+    const copyButton = document.getElementById("copyButton");
+
+    function createUniqueId() {
+      return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const babyName = document.getElementById("babyName").value.trim();
+      const message = document.getElementById("message").value.trim();
+
+      const id = createUniqueId();
+
+      const { error } = await supabaseClient
+        .from("gender-design1")
+        .insert([
+          {
+            id: id,
+            baby_name: babyName,
+            message: message
+          }
+        ]);
+
+      if (error) {
+        alert("Something went wrong. Please try again.");
+        console.error(error);
+        return;
+      }
+
+      const finalLink =
+        window.location.origin +
+        window.location.pathname.replace("girl-form.html", "index.html") +
+        "?id=" +
+        id;
+
+      revealLink.href = finalLink;
+      revealLink.textContent = finalLink;
+
+      resultBox.style.display = "block";
+      form.style.display = "none";
+    });
+
+    copyButton.addEventListener("click", async function() {
+      await navigator.clipboard.writeText(revealLink.href);
+      copyButton.textContent = "Copied!";
+    });
+  </script>
+</body>
+</html>
