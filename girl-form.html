@@ -11,9 +11,7 @@
       src: url('./images/Samantha_Calligraphy.ttf') format('truetype');
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -117,11 +115,10 @@
       box-shadow: 0 8px 18px rgba(142, 81, 90, 0.28);
     }
 
-    button:hover {
-      opacity: 0.92;
-    }
+    button:hover { opacity: 0.92; }
 
-    #resultBox {
+    #resultBox,
+    #lockedBox {
       display: none;
       margin-top: 24px;
       padding: 20px;
@@ -131,13 +128,15 @@
       word-break: break-word;
     }
 
-    #resultBox h2 {
+    #resultBox h2,
+    #lockedBox h2 {
       margin: 0 0 10px 0;
       font-size: 24px;
       font-weight: normal;
     }
 
-    #revealLink {
+    #revealLink,
+    #editLink {
       display: block;
       margin-top: 12px;
       color: #8e515a;
@@ -151,18 +150,22 @@
       font-size: 15px;
     }
 
+    .edit-section {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(142, 81, 90, 0.22);
+    }
+
+    .small-note {
+      font-size: 13px;
+      line-height: 1.4;
+      opacity: 0.85;
+    }
+
     @media (max-width: 600px) {
-      .form-card {
-        padding: 28px 20px;
-      }
-
-      h1 {
-        font-size: 30px;
-      }
-
-      .logo {
-        width: 94%;
-      }
+      .form-card { padding: 28px 20px; }
+      h1 { font-size: 30px; }
+      .logo { width: 94%; }
     }
   </style>
 </head>
@@ -177,9 +180,9 @@
     />
 
     <div class="form-card">
-      <h1>Personalise Your Reveal</h1>
+      <h1 id="pageTitle">Personalise Your Reveal</h1>
 
-      <p class="intro">
+      <p class="intro" id="introText">
         Enter the details you would like to appear on your baby reveal.
       </p>
 
@@ -210,7 +213,7 @@
           Example: Coming This September!
         </div>
 
-        <button type="submit">
+        <button type="submit" id="submitButton">
           Create My Reveal
         </button>
 
@@ -218,15 +221,39 @@
 
       <div id="resultBox">
         <h2>Your reveal is ready!</h2>
+
         <p>
-  <strong>Share this link with friends & family:</strong>
-</p>
+          <strong>Share this link with friends & family:</strong>
+        </p>
 
         <a id="revealLink" href="#" target="_blank"></a>
 
         <button class="copy-button" id="copyButton" type="button">
-          Copy Link
+          Copy Reveal Link
         </button>
+
+        <div class="edit-section" id="editSection">
+          <p>
+            <strong>Your private edit link:</strong>
+          </p>
+
+          <p class="small-note">
+            Please save this link if you need to make changes. Your edit link is available for 24 hours only.
+          </p>
+
+          <a id="editLink" href="#" target="_blank"></a>
+
+          <button class="copy-button" id="copyEditButton" type="button">
+            Copy Edit Link
+          </button>
+        </div>
+      </div>
+
+      <div id="lockedBox">
+        <h2>This reveal is now locked</h2>
+        <p>
+          Your 24-hour edit window has now passed, so this reveal can no longer be changed.
+        </p>
       </div>
     </div>
   </div>
@@ -244,11 +271,68 @@
 
     const form = document.getElementById("revealForm");
     const resultBox = document.getElementById("resultBox");
+    const lockedBox = document.getElementById("lockedBox");
     const revealLink = document.getElementById("revealLink");
+    const editLink = document.getElementById("editLink");
     const copyButton = document.getElementById("copyButton");
+    const copyEditButton = document.getElementById("copyEditButton");
+    const pageTitle = document.getElementById("pageTitle");
+    const introText = document.getElementById("introText");
+    const submitButton = document.getElementById("submitButton");
+
+    const params = new URLSearchParams(window.location.search);
+    const editToken = params.get("edit");
+
+    let editingRevealId = null;
 
     function createUniqueId() {
       return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    function createEditToken() {
+      return Math.random().toString(36).substring(2, 12).toUpperCase();
+    }
+
+    function getRevealPagePath() {
+      return window.location.pathname.replace("girl-form.html", "index.html");
+    }
+
+    function getFormPagePath() {
+      return window.location.pathname.replace("index.html", "girl-form.html");
+    }
+
+    async function loadEditMode() {
+      if (!editToken) return;
+
+      pageTitle.textContent = "Edit Your Reveal";
+      introText.textContent = "You can update your personalised wording below if you are still within your 24-hour edit window.";
+      submitButton.textContent = "Save My Changes";
+
+      const { data, error } = await supabaseClient
+        .from("gender-design1")
+        .select("*")
+        .eq("edit_token", editToken)
+        .single();
+
+      if (error || !data) {
+        form.style.display = "none";
+        lockedBox.style.display = "block";
+        return;
+      }
+
+      const now = new Date();
+      const lockedAfter = new Date(data.locked_after);
+
+      if (now > lockedAfter) {
+        form.style.display = "none";
+        lockedBox.style.display = "block";
+        return;
+      }
+
+      editingRevealId = data.id;
+
+      document.getElementById("babyName").value = data.baby_name || "";
+      document.getElementById("message").value = data.message || "";
     }
 
     form.addEventListener("submit", async function(event) {
@@ -257,7 +341,47 @@
       const babyName = document.getElementById("babyName").value.trim();
       const message = document.getElementById("message").value.trim();
 
+      if (editToken && editingRevealId) {
+        const { error } = await supabaseClient
+          .from("gender-design1")
+          .update({
+            baby_name: babyName,
+            message: message
+          })
+          .eq("edit_token", editToken);
+
+        if (error) {
+          alert("Something went wrong. Please try again.");
+          console.error(error);
+          return;
+        }
+
+        const finalLink =
+          window.location.origin +
+          getRevealPagePath() +
+          "?id=" +
+          editingRevealId;
+
+        revealLink.href = finalLink;
+        revealLink.textContent = finalLink;
+
+        document.getElementById("editSection").style.display = "none";
+
+        resultBox.querySelector("h2").textContent = "Your changes have been saved!";
+        resultBox.querySelector("p").innerHTML =
+          "<strong>Your reveal link:</strong>";
+
+        resultBox.style.display = "block";
+        form.style.display = "none";
+
+        return;
+      }
+
       const id = createUniqueId();
+      const newEditToken = createEditToken();
+
+      const lockedAfter = new Date();
+      lockedAfter.setHours(lockedAfter.getHours() + 24);
 
       const { error } = await supabaseClient
         .from("gender-design1")
@@ -265,7 +389,9 @@
           {
             id: id,
             baby_name: babyName,
-            message: message
+            message: message,
+            edit_token: newEditToken,
+            locked_after: lockedAfter.toISOString()
           }
         ]);
 
@@ -277,12 +403,21 @@
 
       const finalLink =
         window.location.origin +
-        window.location.pathname.replace("girl-form.html", "index.html") +
+        getRevealPagePath() +
         "?id=" +
         id;
 
+      const finalEditLink =
+        window.location.origin +
+        getFormPagePath() +
+        "?edit=" +
+        newEditToken;
+
       revealLink.href = finalLink;
       revealLink.textContent = finalLink;
+
+      editLink.href = finalEditLink;
+      editLink.textContent = finalEditLink;
 
       resultBox.style.display = "block";
       form.style.display = "none";
@@ -292,6 +427,13 @@
       await navigator.clipboard.writeText(revealLink.href);
       copyButton.textContent = "Copied!";
     });
+
+    copyEditButton.addEventListener("click", async function() {
+      await navigator.clipboard.writeText(editLink.href);
+      copyEditButton.textContent = "Copied!";
+    });
+
+    loadEditMode();
   </script>
 </body>
 </html>
