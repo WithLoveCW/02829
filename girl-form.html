@@ -365,16 +365,27 @@
         revealLink.href = finalLink;
         revealLink.textContent = finalLink;
 
-        document.getElementById("editSection").style.display = "none";
+        const finalEditLink =
+  window.location.origin +
+  getFormPagePath() +
+  "?edit=" +
+  editToken;
 
-        resultBox.querySelector("h2").textContent = "Your changes have been saved!";
-        resultBox.querySelector("p").innerHTML =
-          "<strong>Your reveal link:</strong>";
+editLink.href = finalEditLink;
+editLink.textContent = finalEditLink;
 
-        resultBox.style.display = "block";
-        form.style.display = "none";
+document.getElementById("editSection").style.display = "block";
 
-        return;
+resultBox.querySelector("h2").textContent =
+  "Your changes have been saved!";
+
+resultBox.querySelector("p").innerHTML =
+  "<strong>Share this updated reveal link with friends & family:</strong>";
+
+resultBox.style.display = "block";
+form.style.display = "none";
+
+return;
       }
 
       const id = createUniqueId();
